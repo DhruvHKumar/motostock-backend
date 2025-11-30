@@ -12,7 +12,7 @@ import SettingsModal from './components/SettingsModal';
 import UserProfileModal from './components/UserProfileModal';
 
 // Constants
-import { RAW_CITIES, CATEGORIES, GOOGLE_SHEET_URL } from './constants';
+import { RAW_CITIES, CATEGORIES, GOOGLE_SHEET_URL, N8N_WEBHOOK_URL } from './constants';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -158,11 +158,46 @@ export default function App() {
 
         // Show toast
         setToast({
-            message: `Restock request for ${itemName || CATEGORIES.find(c => c.id === category)?.label} in ${city} has been submitted`,
+            message: `Restock request for ${itemName} in ${city} sent to AI Agent...`,
             type: 'success'
         });
 
-        // Hide toast after 3 seconds
+        // Call n8n webhook
+        const itemData = data.find(d => d.city === city && d.item === itemName);
+
+        fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'restock',
+                city,
+                category,
+                item: itemName,
+                currentStock: itemData?.stock,
+                region: itemData?.region,
+                timestamp: new Date().toISOString()
+            })
+        }).then(async (res) => {
+            if (res.ok) {
+                const result = await res.json();
+                console.log('AI Restock Response:', result);
+                if (result.message) {
+                    setToast({
+                        message: `AI Agent: ${result.message}`,
+                        type: 'success'
+                    });
+                    setTimeout(() => setToast(null), 4000);
+                }
+            }
+        }).catch(err => {
+            console.error('Webhook error:', err);
+            setToast({
+                message: 'Failed to reach AI Agent',
+                type: 'error'
+            });
+        });
+
+        // Hide toast after 3 seconds (initial toast)
         setTimeout(() => setToast(null), 3000);
     };
 

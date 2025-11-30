@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, AlertTriangle, Activity, TrendingUp, BarChart2, X } from 'lucide-react';
 import KPICard from './KPICard';
+import AIInsights from './AIInsights';
 import { CATEGORIES } from '../constants';
 
 const DashboardOverview = ({ data, onRestock }) => {
@@ -121,6 +122,9 @@ const DashboardOverview = ({ data, onRestock }) => {
                 />
             </div>
 
+            {/* AI Insights Panel */}
+            <AIInsights onRestock={onRestock} />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Chart Area */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -134,7 +138,7 @@ const DashboardOverview = ({ data, onRestock }) => {
                             const height = maxVal > 0 ? (region.value / maxVal) * 100 : 0;
                             return (
                                 <div key={i} className="flex flex-col items-center gap-2 w-full group">
-                                    <div className="relative w-full max-w-[60px] bg-slate-100 rounded-t-md h-full flex items-end overflow-hidden">
+                                    <div className="relative w-full max-w-[60px] bg-slate-100 rounded-t-md h-48 flex items-end overflow-hidden">
                                         <div
                                             className="w-full bg-[#005696] rounded-t-md transition-all duration-500 group-hover:bg-[#00467a]"
                                             style={{ height: `${height}%` }}
