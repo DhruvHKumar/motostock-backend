@@ -75,18 +75,46 @@ const AIInsights = ({ onRestock }) => {
 
     // ... (PriorityBadge remains the same)
 
+    // Loading Animation Logic
+    const [loadingMessage, setLoadingMessage] = useState('Initializing Neural Engine...');
+
+    useEffect(() => {
+        let interval;
+        if (loading) {
+            const messages = [
+                'Connecting to Neural Engine...',
+                'Analyzing Regional Demand Patterns...',
+                'Cross-referencing Inventory Levels...',
+                'Generating Predictive Insights...',
+                'Finalizing Recommendations...'
+            ];
+            let i = 0;
+            setLoadingMessage(messages[0]);
+            interval = setInterval(() => {
+                i = (i + 1) % messages.length;
+                setLoadingMessage(messages[i]);
+            }, 1500);
+        }
+        return () => clearInterval(interval);
+    }, [loading]);
+
     return (
         <div className="bg-gradient-to-br from-indigo-50 to-white rounded-lg shadow-sm border border-indigo-100 overflow-hidden">
             <div className="p-4 border-b border-indigo-100 flex justify-between items-center bg-white/50">
                 <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-indigo-100 rounded-md">
-                        <BrainCircuit className="w-4 h-4 text-indigo-600" />
+                    <div className={`p-1.5 bg-indigo-100 rounded-md ${loading ? 'animate-pulse' : ''}`}>
+                        <BrainCircuit className={`w-4 h-4 text-indigo-600 ${loading ? 'animate-spin-slow' : ''}`} />
                     </div>
                     <div>
                         <h3 className="font-bold text-slate-800 text-sm">AI Inventory Insights</h3>
-                        {lastUpdated && (
+                        {lastUpdated && !loading && (
                             <p className="text-[10px] text-slate-400">
                                 Updated {lastUpdated.toLocaleTimeString()}
+                            </p>
+                        )}
+                        {loading && (
+                            <p className="text-[10px] text-indigo-500 font-medium animate-pulse">
+                                Processing...
                             </p>
                         )}
                     </div>
@@ -94,18 +122,27 @@ const AIInsights = ({ onRestock }) => {
                 <button
                     onClick={fetchInsights}
                     disabled={loading}
-                    className={`p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all ${loading ? 'animate-spin' : ''}`}
+                    className={`p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title="Refresh Analysis"
                 >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 </button>
             </div>
 
-            <div className="p-4 space-y-4">
-                {loading && !insights ? (
-                    <div className="text-center py-6 text-slate-500 animate-pulse">
-                        <Sparkles className="w-6 h-6 mx-auto mb-2 text-indigo-400" />
-                        <p className="text-xs">Analyzing inventory patterns...</p>
+            <div className="p-4 space-y-4 min-h-[200px] relative">
+                {loading ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[1px] z-10">
+                        <div className="relative w-16 h-16 mb-4">
+                            <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="absolute inset-4 bg-indigo-50 rounded-full flex items-center justify-center animate-pulse">
+                                <Sparkles className="w-5 h-5 text-indigo-500" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-slate-700 animate-pulse">{loadingMessage}</p>
+                        <div className="w-48 h-1 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                            <div className="h-full bg-indigo-500 rounded-full animate-progress"></div>
+                        </div>
                     </div>
                 ) : !insights ? (
                     <div className="text-center py-6 text-slate-400">
