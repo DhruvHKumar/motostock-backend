@@ -12,7 +12,7 @@ import SettingsModal from './components/SettingsModal';
 import UserProfileModal from './components/UserProfileModal';
 
 // Constants
-import { RAW_CITIES, CATEGORIES, GOOGLE_SHEET_URL, N8N_WEBHOOK_URL } from './constants';
+import { RAW_CITIES, CATEGORIES, GOOGLE_SHEET_URL, N8N_WEBHOOK_URL, N8N_WEBHOOK_URL2 } from './constants';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -165,7 +165,7 @@ export default function App() {
         // Call n8n webhook
         const itemData = data.find(d => d.city === city && d.item === itemName);
 
-        fetch(N8N_WEBHOOK_URL, {
+        fetch(N8N_WEBHOOK_URL2, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

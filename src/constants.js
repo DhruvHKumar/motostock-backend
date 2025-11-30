@@ -71,6 +71,6 @@ export const CATEGORIES = [
     { id: 'tech', label: 'Tech', icon: Cpu, color: '#6366f1' }     // Indigo
 ];
 
-export const N8N_WEBHOOK_URL = 'https://n8n.dnklabs.xyz/webhook-test/motostock-analyse';
-export const N8N_WEBHOOK_URL2 = 'https://n8n.dnklabs.xyz/webhook/motostock-restock';
+export const N8N_WEBHOOK_URL = '/api/analyse';
+export const N8N_WEBHOOK_URL2 = '/api/restock';
 export const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKLJLBavG8yW1uZdo1cw_ur0iCPDXBR8KUd8jp4hrRSdHSwXMq2xOCU-pR0_sXznMl990JhV_YRwdr/pub?gid=0&single=true&output=csv';

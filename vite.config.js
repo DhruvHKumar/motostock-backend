@@ -6,12 +6,20 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            '/api/webhook': {
+            '/api/analyse': {
                 target: 'https://n8n.dnklabs.xyz',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/webhook/, '/webhook/motostock'),
+                rewrite: (path) => path.replace(/^\/api\/analyse/, '/webhook/motostock-analyse'),
+                secure: false
+            },
+            '/api/restock': {
+                target: 'https://n8n.dnklabs.xyz',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/restock/, '/webhook/motostock-restock'),
                 secure: false
             }
         }
     }
 })
+
+
