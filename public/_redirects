@@ -1,0 +1,3 @@
+/api/analyse  https://n8n.dnklabs.xyz/webhook/motostock-analyse  200
+/api/restock  https://n8n.dnklabs.xyz/webhook/motostock-restock  200
+/*  /index.html  200
