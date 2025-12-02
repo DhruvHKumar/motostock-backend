@@ -42,6 +42,8 @@ const Sidebar = ({ activeTab, setActiveTab, selectedRegion, setSelectedRegion, o
                                 <option value="All">All Regions</option>
                                 <option value="North India">North India</option>
                                 <option value="North-East India">North-East India</option>
+                                <option value="South India">South India</option>
+                                <option value="East India">East India</option>
                                 <option value="West India">West India</option>
                             </select>
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
