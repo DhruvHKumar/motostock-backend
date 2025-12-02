@@ -29,10 +29,9 @@ const GeoDashboard = ({ data, rawCities }) => {
             const cityInfo = rawCities.find(c => c.name === cityName);
 
             if (!cityInfo) {
-                console.warn(`City not found in coordinate list: ${cityName}. Defaulting to center of India.`);
+                console.warn(`City not found in coordinate list: ${cityName}. Skipping map placement.`);
+                return null; // Return null to filter out later
             }
-
-            const finalCityInfo = cityInfo || { lat: 20.5937, lng: 78.9629 };
 
             // Get all items for this city
             const cityStock = data.filter(d => d.city === cityName);
@@ -48,14 +47,14 @@ const GeoDashboard = ({ data, rawCities }) => {
 
             return {
                 name: cityName,
-                lat: finalCityInfo.lat,
-                lng: finalCityInfo.lng,
+                lat: cityInfo.lat,
+                lng: cityInfo.lng,
                 totalStock,
                 isCritical,
                 details: cityStock,
                 categoryStats
             };
-        });
+        }).filter(city => city !== null); // Filter out nulls (cities without coordinates)
 
         // Group cities by location to detect overlaps
         const locationGroups = cities.reduce((acc, city) => {

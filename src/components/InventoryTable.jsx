@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { AlertTriangle, TrendingUp, ChevronLeft, ChevronRight, Filter, RotateCcw } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronLeft, ChevronRight, Filter, RotateCcw, Settings } from 'lucide-react';
 import { CATEGORIES } from '../constants';
+import StockManagementModal from './StockManagementModal';
 
-const InventoryTable = ({ data }) => {
+const InventoryTable = ({ data, allData, onRestock, onShiftStock }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     // Filter States
     const [categoryFilter, setCategoryFilter] = useState('All');
@@ -50,6 +52,15 @@ const InventoryTable = ({ data }) => {
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <StockManagementModal
+                isOpen={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                item={selectedItem}
+                allData={allData}
+                onRestock={onRestock}
+                onShiftStock={onShiftStock}
+            />
+
             {/* Filter Bar */}
             <div className="bg-white border-b border-slate-200 p-4 flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
@@ -113,6 +124,7 @@ const InventoryTable = ({ data }) => {
                             <th className="px-6 py-4">Accessory Name</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4 text-right">Stock Level</th>
+                            <th className="px-6 py-4 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
@@ -155,11 +167,19 @@ const InventoryTable = ({ data }) => {
                                             <span className="font-mono text-slate-600 w-8">{row.stock}</span>
                                         </div>
                                     </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button
+                                            onClick={() => setSelectedItem(row)}
+                                            className="text-xs font-medium text-[#005696] hover:text-[#00467a] hover:bg-blue-50 px-3 py-1.5 rounded transition-colors border border-transparent hover:border-blue-100"
+                                        >
+                                            Manage
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                                <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                                     No items match your filters.
                                 </td>
                             </tr>

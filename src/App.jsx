@@ -145,60 +145,66 @@ export default function App() {
     }, [data, selectedRegion, searchTerm]);
 
     const addNotification = (city, category, itemName) => {
-        const newNotification = {
-            id: Date.now(),
-            city,
-            category: CATEGORIES.find(c => c.id === category)?.label || category,
-            item: itemName,
-            timestamp: new Date(),
-            read: false
-        };
-
-        setNotifications(prev => [newNotification, ...prev]);
-
-        // Show toast
+        // 1. Immediate "Processing" Feedback
         setToast({
-            message: `Restock request for ${itemName} in ${city} sent to AI Agent...`,
+            message: `AI Agent: Analyzing restock requirements for ${itemName}...`,
+            type: 'info' // You might want to style 'info' differently or just use success/default
+        });
+
+        // 2. Simulate AI Processing Delay (e.g., 2 seconds)
+        setTimeout(() => {
+            const newNotification = {
+                id: Date.now(),
+                city,
+                category: CATEGORIES.find(c => c.id === category)?.label || category,
+                item: itemName,
+                timestamp: new Date(),
+                read: false
+            };
+
+            setNotifications(prev => [newNotification, ...prev]);
+
+            // 3. Show Success Message
+            setToast({
+                message: `Restock request approved and initiated for ${itemName}.`,
+                type: 'success'
+            });
+
+            // 4. Update Local Data to "Remove" from Low Stock List
+            // We do this by artificially increasing the stock to a safe level (e.g., 50)
+            setData(prevData => prevData.map(item => {
+                if (item.city === city && item.item === itemName) {
+                    return { ...item, stock: 50 }; // Set to 50 to move it out of "Low Stock" (<30)
+                }
+                return item;
+            }));
+
+            // Hide toast after a few seconds
+            setTimeout(() => setToast(null), 4000);
+
+        }, 2000); // 2 second delay for "AI" feel
+    };
+
+    const handleShiftStock = (sourceCity, targetCity, itemName, amount) => {
+        // Update local data
+        setData(prevData => prevData.map(item => {
+            if (item.item === itemName) {
+                if (item.city === sourceCity) {
+                    return { ...item, stock: item.stock - amount };
+                }
+                if (item.city === targetCity) {
+                    return { ...item, stock: item.stock + amount };
+                }
+            }
+            return item;
+        }));
+
+        setToast({
+            message: `Successfully transferred ${amount} units of ${itemName} from ${sourceCity} to ${targetCity}.`,
             type: 'success'
         });
 
-        // Call n8n webhook
-        const itemData = data.find(d => d.city === city && d.item === itemName);
-
-        fetch(N8N_WEBHOOK_URL2, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'restock',
-                city,
-                category,
-                item: itemName,
-                currentStock: itemData?.stock,
-                region: itemData?.region,
-                timestamp: new Date().toISOString()
-            })
-        }).then(async (res) => {
-            if (res.ok) {
-                const result = await res.json();
-                console.log('AI Restock Response:', result);
-                if (result.message) {
-                    setToast({
-                        message: `AI Agent: ${result.message}`,
-                        type: 'success'
-                    });
-                    setTimeout(() => setToast(null), 4000);
-                }
-            }
-        }).catch(err => {
-            console.error('Webhook error:', err);
-            setToast({
-                message: 'Failed to reach AI Agent',
-                type: 'error'
-            });
-        });
-
-        // Hide toast after 3 seconds (initial toast)
-        setTimeout(() => setToast(null), 3000);
+        setTimeout(() => setToast(null), 4000);
     };
 
     const markAsRead = (id) => {
@@ -297,7 +303,12 @@ export default function App() {
                             )}
                             {activeTab === 'inventory' && (
                                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 h-full overflow-hidden flex flex-col">
-                                    <InventoryTable data={filteredData} />
+                                    <InventoryTable
+                                        data={filteredData}
+                                        allData={data}
+                                        onRestock={addNotification}
+                                        onShiftStock={handleShiftStock}
+                                    />
                                 </div>
                             )}
                         </>
